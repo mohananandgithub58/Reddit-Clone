@@ -1,11 +1,12 @@
 from flask_restful import Resource, reqparse
 from models.like import LikeModel
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required
 from models.post import PostModel
 from models.user import UserModel
 from sqlalchemy.exc import NoResultFound
 
 class LikeAPost(Resource):
+    @jwt_required()
     def post(self, username, post_id):
         try:
             user = UserModel.find_by_username(username)
@@ -25,6 +26,7 @@ class LikeAPost(Resource):
 
 
 class UnlikeAPost(Resource):
+    @jwt_required()
     def post(self, username, post_id):
         try:
             user = UserModel.find_by_username(username)

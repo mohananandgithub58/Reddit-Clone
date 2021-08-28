@@ -1,18 +1,19 @@
 from db import db
+from flask_restful import Resource, reqparse
+from flask_jwt_extended import jwt_required
+from datetime import datetime
+from sqlalchemy.exc import NoResultFound
+
 from models.post import PostModel
 from models.user import UserModel
-from flask_restful import Resource, reqparse
-from flask_jwt import jwt_required
-from datetime import datetime
-
-from sqlalchemy.exc import NoResultFound
 
 class CreatePost(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('content', type = str, required = True, help = "post cannot be empty !")
 
-    #@jwt_required()
+    @jwt_required()
     def post(self, username):
+        print('Create post ----------')
         try:
             user = UserModel.find_by_username(username)
         except NoResultFound:
@@ -26,7 +27,7 @@ class UpdatePost(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('content', type = str, required = True, help = "post cannot be empty !")
 
-    #@jwt_required()
+    @jwt_required()
     def put(self, username, post_id):
         try:
             user = UserModel.find_by_username(username)
@@ -42,7 +43,7 @@ class UpdatePost(Resource):
         return {'message':'post not found!'}, 400
 
 class DeletePost(Resource):
-    #@jwt_required()
+    @jwt_required()
     def delete(self, username, post_id):
         try:
             user = UserModel.find_by_username(username)
@@ -58,7 +59,7 @@ class DeletePost(Resource):
                 return {'message':'Could not find post !'}, 400
 
 class PostList(Resource):
-    #@jwt_required()
+    @jwt_required()
     def get(self, username):
         try:
             user = UserModel.find_by_username(username)

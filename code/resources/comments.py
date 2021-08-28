@@ -1,7 +1,7 @@
 from models.comments import CommentsModel
 from db import db
 from flask_restful import Resource, reqparse
-from flask_jwt import jwt_required
+from flask_jwt_extended import jwt_required
 from datetime import datetime
 from models.user import UserModel
 from models.post import PostModel
@@ -14,6 +14,7 @@ class AddCommentsToPost(Resource):
     parser.add_argument('content', type=str, required=True, help="post cannot be empty !")
     parser.add_argument('post_id', type=int, required=True, help="comment must have a post id !")
 
+    @jwt_required()
     def post(self, username):
         try:
             user = UserModel.find_by_username(username)
@@ -30,6 +31,7 @@ class DeleteAllCommentsByUserOnPost(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('post_id', type=int, required=True, help="comment must have a post id !")
 
+    @jwt_required()
     def delete(self, username):
         try:
             user = UserModel.find_by_username(username)
@@ -48,6 +50,7 @@ class DeleteAllCommentsByUserOnPost(Resource):
             return {'message' : f'no comment exist on post {data["post_id"]} by user : <{username}>'}, 400
 
 class CommentsOnPost(Resource):
+    @jwt_required()
     def get(self, post_id):
         try:
             post = PostModel.find_by_id(post_id)
