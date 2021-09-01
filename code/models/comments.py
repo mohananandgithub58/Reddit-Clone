@@ -22,9 +22,32 @@ class CommentsModel(db.Model):
         return {f'post id ' : self.post_id, 'user ' : user.username, 'content ' : self.content}
 
     def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except CompileError or InternalError:
+            db.session.rollback()
+            return {'message':'an unknown error occured !'}, 500
+        except DisconnectionError:
+            db.sesson.rollback()
+            return {'message':'Database disconnected !'}, 200
+        except IdentifierError:
+            db.session.rollback()
+            return {'message':'character limit exceeded, kindly check !'}, 200
+        except TimeoutError:
+            db.session.rollback()
+            return {'message':'session timed out !'}, 200
 
     def delete_from_db(self):
-        db.session.delete(self)
-        db.session.commit()
+        try:
+            db.session.delete(self)
+            db.session.commit()
+        except CompileError or InternalError:
+            db.session.rollback()
+            return {'message':'an unknown error occured !'}, 500
+        except DisconnectionError:
+            db.sesson.rollback()
+            return {'message':'Database disconnected !'}, 200
+        except TimeoutError:
+            db.session.rollback()
+            return {'message':'session timed out !'}, 200

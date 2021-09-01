@@ -1,10 +1,19 @@
 from db import db
+from datetime import datetime
+import re
+from sqlalchemy.exc import (
+    IntegrityError,
+    CompileError,
+    DisconnectionError,
+    IdentifierError,
+    InternalError,
+    TimeoutError,
+    NoResultFound
+)
 from models.post import PostModel
 from models.comments import CommentsModel
 from models.like import LikeModel
-from datetime import datetime
-import re
-from sqlalchemy.exc import IntegrityError, CompileError, DisconnectionError, IdentifierError, InternalError, TimeoutError, NoResultFound
+from models.blocklist import TokenBlockListModel
 
 class UserModel(db.Model):
     __tablename__ = 'user'
@@ -17,6 +26,7 @@ class UserModel(db.Model):
     posts = db.relationship('PostModel', backref='author',  cascade='all,delete')
     comments = db.relationship('CommentsModel', backref='commenter', cascade='all,delete')
     like_status = db.relationship('LikeModel', backref='user', cascade='all,delete')
+    login_logout_status = db.relationship('TokenBlockListModel', backref='login_status', cascade='all, delete')
 
 
     def __init__(self, username, password):
@@ -27,7 +37,7 @@ class UserModel(db.Model):
     @classmethod
     def find_by_username(cls, username):
         return cls.query.filter_by(username = username).one()
-        
+
     @classmethod
     def find_by_id(cls, id):
         return cls.query.filter_by(id = id).one()
