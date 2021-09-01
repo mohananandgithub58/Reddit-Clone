@@ -9,7 +9,7 @@
       4) A API documentation.txt file is added containing detailed API usage on Postman.
 ## Usage
     After setting up python virtual environment, run app.py file. 
-    User Postman for GET, POST, DELETE, PUT requests. Follow the documentation for more details.
+    Use Postman for GET, POST, DELETE, PUT requests. Follow the documentation for more details.
 
 ## END
     Try it out and do comment.
