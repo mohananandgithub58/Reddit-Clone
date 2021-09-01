@@ -1,7 +1,18 @@
 from db import db
 from datetime import datetime
+from sqlalchemy.exc import (
+    IntegrityError,
+    CompileError,
+    DisconnectionError,
+    IdentifierError,
+    InternalError,
+    TimeoutError,
+    NoResultFound
+)
+
 from models.comments import CommentsModel
 from models.like import LikeModel
+
 
 class PostModel(db.Model):
     __tablename__ = 'post'

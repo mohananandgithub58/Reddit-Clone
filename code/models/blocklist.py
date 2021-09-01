@@ -1,5 +1,12 @@
 from db import db
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import (
+    NoResultFound,
+    CompileError,
+    InternalError,
+    DisconnectionError,
+    IdentifierError,
+    TimeoutError
+)
 from datetime import datetime
 
 class TokenBlockListModel(db.Model):
@@ -18,22 +25,53 @@ class TokenBlockListModel(db.Model):
         self.refresh_jti = refresh_jti
         self.logged_in_at = datetime.now()
 
-    def add_to_db(self):
-        db.session.add(self)
+    def update_block_list(self, fresh_jti, refresh_jti):
+        self.fresh_jti = fresh_jti
+        self.refresh_jti = refresh_jti
+        self.logged_in_at = datetime.now()
+        self.logged_out_at = None
+        self.revoked_status = 0
         db.session.commit()
+
+    def add_to_db(self):
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except CompileError or InternalError:
+            db.session.rollback()
+            return {'message':'an unknown error occured !'}, 500
+        except DisconnectionError:
+            db.sesson.rollback()
+            return {'message':'Database disconnected !'}, 200
+        except IdentifierError:
+            db.session.rollback()
+            return {'message':'character limit exceeded, kindly check !'}, 200
+        except TimeoutError:
+            db.session.rollback()
+            return {'message':'session timed out !'}, 200
 
     def delete_from_db(self):
-        db.session.delete(self)
-        db.session.commit()
+        try:
+            db.session.delete()
+            db.session.commit()
+        except CompileError or InternalError:
+            db.session.rollback()
+            return {'message':'an unknown error occured !'}, 500
+        except DisconnectionError:
+            db.sesson.rollback()
+            return {'message':'Database disconnected !'}, 200
+        except TimeoutError:
+            db.session.rollback()
+            return {'message':'session timed out !'}, 200
 
     @classmethod
-    def find_by_id(cls, id):
-        return cls.query.filter_by(user_id = id).order_by(TokenBlockListModel.id.desc()).first()
+    def find_by_userid(cls, userid):
+        return cls.query.filter_by(user_id = userid).first()
 
     @classmethod
     def find_by_jti(cls, jti):
         try:
-            token = cls.query.filter((TokenBlockListModel.fresh_jti == jti) | (TokenBlockListModel.refresh_jti == jti)).order_by(TokenBlockListModel.id.desc()).first()
+            token = cls.query.filter((TokenBlockListModel.fresh_jti == jti) | (TokenBlockListModel.refresh_jti == jti)).first()
         except NoResultFound:
             return None
         else:

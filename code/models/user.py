@@ -1,11 +1,19 @@
 from db import db
+from datetime import datetime
+import re
+from sqlalchemy.exc import (
+    IntegrityError,
+    CompileError,
+    DisconnectionError,
+    IdentifierError,
+    InternalError,
+    TimeoutError,
+    NoResultFound
+)
 from models.post import PostModel
 from models.comments import CommentsModel
 from models.like import LikeModel
 from models.blocklist import TokenBlockListModel
-from datetime import datetime
-import re
-from sqlalchemy.exc import IntegrityError, CompileError, DisconnectionError, IdentifierError, InternalError, TimeoutError, NoResultFound
 
 class UserModel(db.Model):
     __tablename__ = 'user'
